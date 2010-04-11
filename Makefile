@@ -17,7 +17,7 @@ parser: GrammarRule.java NonterminalRule.java Parser.java RulesHash.java Termina
 	$(JC) *.java
 
 tar:
-	tar zcfv CS3240-ll1.tar.gz Makefile scanner.c tiny.txt *.t *.java
+	tar zcfv CS3240-ll1.tar.gz Makefile scanner.c tiny.txt *.t *.java run.sh
 
 clean:
 	\rm scanner *.class

@@ -127,8 +127,6 @@ public class ParserDriver
 		//======================================================================
 		try
 		{
-			
-			parseTableFile = "test.csv";
 			parserGenerator.buildParseTable();
 			parserGenerator.saveParseTable(parseTableFile);
 		}

@@ -96,8 +96,6 @@ public class ParserDriver
 				//TODO: Specify exception
 				throw new Exception();
 			
-			Exception e = new Exception();
-			e.
 			String rule;
 			String productionRules[];
 			String splitString[];

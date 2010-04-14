@@ -13,7 +13,7 @@ all: scanner parser
 scanner: scanner.c
 	$(CC) $(CFLAGS) scanner.c -o scanner
 
-parser: GrammarRule.java NonterminalRule.java Parser.java RulesHash.java TerminalRule.java Test.java
+parser: GrammarRule.java NonterminalRule.java Parser.java ParserDriver.java ParserGenerator.java ParseTable.java TerminalRule.java
 	$(JC) *.java
 
 tar:

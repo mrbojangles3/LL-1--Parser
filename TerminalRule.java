@@ -4,9 +4,9 @@ import java.util.LinkedList;
 
 /**
  * Class for a terminal node a.k.a. a token.
- * 		i.e. EPSILON, INT, PLUS, etc.
+ * 		i.e. INT, PLUS, etc.
  * 
- * @author Robert Rayborn, James McCarty, & Logan Blyth
+ * @author Logan Blyth, James McCarty, & Robert Rayborn 
  *
  */
 
@@ -24,20 +24,22 @@ public class TerminalRule extends GrammarRule
 	}
 	
 	@Override
-	public LinkedList<GrammarRule> getFirst()
+	public LinkedList<TerminalRule> getFirst()
 	{
-		LinkedList<GrammarRule> first = new LinkedList<GrammarRule>();
+		LinkedList<TerminalRule> first = new LinkedList<TerminalRule>();
 		first.add(this);
 		return first;
 	}
 
 	/**
-	 * This function should never be called. 
+	 * Follow undefined for terminal, so we throw a runtime exception.
+	 * This function will only be called with misuse of the functions
+	 * and is only included for completion's sake.
 	 */
 	@Override
-	public LinkedList<GrammarRule> getFollow() 
+	public LinkedList<TerminalRule> getFollow()
 	{
-		return null;
+		throw new RuntimeException();
 	}
 
 	@Override

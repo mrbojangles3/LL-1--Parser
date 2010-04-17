@@ -9,13 +9,19 @@ make all > /dev/null 2>&1 || (echo "Errors occured in the build..."; echo "Run '
 # Check for valid input
 
 if [ -z "$1" -o -z "$2" ] ; then
-	echo "Usage: $0 tiny_file.t input_grammar.g"
+	echo "Usage: $0 tiny_file.t input_grammar.g <table_outfile_name.csv>"
 	exit
 fi	
 if [ ! -f $1 -o ! -f $2 ] ; then
-	echo "Usage: $0 tiny_file.t input_grammar.g"
+	echo "Usage: $0 tiny_file.t input_grammar.g table_outfile_name.csv"
 	echo "Invalid filename was given."
 	exit
+fi
+
+if [ -z "$3" ] ; then
+	TABLE='parseTable.csv'
+else
+	TABLE=$3
 fi
 
 # Run our scanner on our tiny file and pipe the output.
@@ -27,3 +33,5 @@ if [ ! -f $1.tok ] ; then
 fi
 
 # Run our parser the grammar file, and feed it our tokenized input
+
+java ParserDriver $1.tok $2 $TABLE

@@ -1,0 +1,34 @@
+#README for CS3240 Project 1
+#LL(1) scanner parser
+# Authors: James McCarty
+# 	Logan Blyth
+# 	Rob Rayborn
+
+C/Java impelmentation of an LL(1) parser of the Tiny language described in "Compiler Construction: Principles and Practice" by Kenneth C. Louden
+
+This program requries two inputs:
+	1. An LL(1) grammar file, i.e. tiny.g
+	2. A tiny source file to test, i.e. tiny.t
+
+To run the project:
+	./run.sh tiny_file.t input_grammar.g <parsing_table_output_filename.csv>
+
+An output file name is optional.
+
+The project runs in two parts:
+	1.  The scanner tokenizes the input source file into symbols.
+		- If errors are enountered, they are dumped to the terminal and the 
+			script exits.
+		- If no errors are encountered, the script gives no output.
+		- If the scan was successful, a file named tiny.t.tok will exist
+			in the run directory, where 'tint.t' was the input file name.
+	2.  The parser/generator runs on the tokenized input and grammar file.
+		- It outputs the LL(1) parsing table to the name specified, or
+			to parseTable.csv by default.
+		- If the parse was successful, the message:
+			"Parse completed successfully! No errors detected."
+			will print to the console.
+		- If there are errors in the input grammar, a useful message will
+			be printed to the console.
+		- If there is an error in parsing, the parse stack will be dumped to
+			the console.

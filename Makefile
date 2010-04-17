@@ -18,7 +18,7 @@ parser: $(JFILES)
 	$(JC) $(JFILES)
 
 tar:
-	tar zcfv CS3240-ll1.tar.gz Makefile scanner.c tiny.txt *.t run.sh $(JFILES)
+	tar zcfv CS3240-ll1.tar.gz README Makefile scanner.c tiny.txt *.t run.sh $(JFILES)
 
 clean:
 	\rm scanner *.class

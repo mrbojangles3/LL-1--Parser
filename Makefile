@@ -7,17 +7,18 @@
 JC = javac
 CC = gcc
 CFLAGS = -ansi -pedantic -Werror -Wall -O2
+JFILES = EpsilonRule.java NonterminalRule.java Parser.java ParserGenerator.java GrammarRule.java ParseTable.java ParserDriver.java TerminalRule.java
 
 all: scanner parser
 
 scanner: scanner.c
 	$(CC) $(CFLAGS) scanner.c -o scanner
 
-parser: GrammarRule.java NonterminalRule.java Parser.java ParserDriver.java ParserGenerator.java ParseTable.java TerminalRule.java
-	$(JC) *.java
+parser: $(JFILES)
+	$(JC) $(JFILES)
 
 tar:
-	tar zcfv CS3240-ll1.tar.gz Makefile scanner.c tiny.txt *.t *.java run.sh
+	tar zcfv CS3240-ll1.tar.gz Makefile scanner.c tiny.txt *.t run.sh $(JFILES)
 
 clean:
 	\rm scanner *.class

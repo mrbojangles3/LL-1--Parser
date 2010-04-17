@@ -16,7 +16,7 @@ public class ParserDriver
 	public static void main(String[] args)
 	{
 		
-		String rulesFile, scannerFile, parseTableFile;
+		String scannerFile, grammarFile, parseTableFile;
 		ParserGenerator parserGenerator;
 		LinkedList<String> input;
 
@@ -25,32 +25,35 @@ public class ParserDriver
 		{
 			// Set default paramenters
 			scannerFile = "scan.txt";
-			rulesFile = "parse.txt";
+			grammarFile = "grammar.txt";
 			parseTableFile = "parseTable.csv";
 		}
 		else if(args.length == 3)
 		{
 			// Assign any input parameter
 			scannerFile = args[0];
-			rulesFile = args[1];
+			grammarFile = args[1];
 			parseTableFile = args[2];
 		}
 		else
 		{
-			return;
-			//TODO: Throw error
+			throw new RuntimeException("\n Wrong input parameters to ParseDriver.java.  Input parameters are: \n"
+					+"   Scanner File Name \n"
+					+"   Grammar File Name \n"
+					+"   Parse Table File Name (to save to)");
 		}		
 		
 		//======================================================================
 		//=======STEP 1: LOADING DATA FOR PARSE TABLE BUILD=====================
 		//======================================================================
+		
 		try
 		{
 			String line;
 			String lineTokens[], terminalTokens[], nonterminalTokens[], startToken;
 			
 			// Set up file input
-			FileInputStream fstream = new FileInputStream(rulesFile);
+			FileInputStream fstream = new FileInputStream(grammarFile);
 			DataInputStream dstream = new DataInputStream(fstream); 
 			BufferedReader br = new BufferedReader(new InputStreamReader(dstream));
 
@@ -59,8 +62,7 @@ public class ParserDriver
 			line = removeMultipleSpaces(line);
 			lineTokens = line.trim().split(" ");
 			if (!lineTokens[0].equals("%Tokens"))
-				//TODO: Specify exception
-				throw new Exception();
+				throw new RuntimeException("\n Grammar file malformed.");
 			terminalTokens = new String[lineTokens.length-1];
 			for(int i=0; i<terminalTokens.length; i++)
 				terminalTokens[i] = lineTokens[i+1].trim();
@@ -70,8 +72,7 @@ public class ParserDriver
 			line = removeMultipleSpaces(line);
 			lineTokens = line.trim().split(" ");
 			if (!lineTokens[0].equals("%Non-terminals"))
-				//TODO: Specify exception
-				throw new Exception();
+				throw new RuntimeException("\n Grammar file malformed.");
 			nonterminalTokens = new String[lineTokens.length-1];
 			for(int i=0; i<nonterminalTokens.length; i++)
 				nonterminalTokens[i] = lineTokens[i+1].trim();
@@ -81,8 +82,7 @@ public class ParserDriver
 			line = removeMultipleSpaces(line);
 			lineTokens = line.trim().split(" ");
 			if (!lineTokens[0].equals("%Start"))
-				//TODO: Specify exception
-				throw new Exception();
+				throw new RuntimeException("\n Grammar file malformed.");
 			startToken = lineTokens[1].trim();
 
 			// Create parse table builder			
@@ -93,8 +93,7 @@ public class ParserDriver
 			line = removeMultipleSpaces(line);
 			lineTokens = line.trim().split(" ");
 			if (!lineTokens[0].equals("%Rules"))
-				//TODO: Specify exception
-				throw new Exception();
+				throw new RuntimeException("\n Grammar file malformed.");
 			
 			String rule;
 			String productionRules[];
@@ -114,33 +113,33 @@ public class ParserDriver
 			
 			dstream.close();
 		}
-		catch(Exception e)
+		catch(IOException e)
 		{
-			//TODO: Specify exception handling
-			System.err.println("Error: "+e.getMessage());
-			e.printStackTrace();
-			return;
+			throw new RuntimeException("\n Grammar file read failed.");
+		}
+		catch(ArrayIndexOutOfBoundsException e)
+		{
+			throw new RuntimeException("\n Grammar file malformed.");			
 		}
 
 		//======================================================================
 		//=======STEP 2: BUILD THE PARSE TABLE==================================
 		//======================================================================
+		
+		parserGenerator.buildParseTable();
 		try
 		{
-			parserGenerator.buildParseTable();
 			parserGenerator.saveParseTable(parseTableFile);
 		}
-		catch(Exception e)
+		catch(IOException e)
 		{
-			//TODO: Specify exception handling
-			System.err.println("Error: "+e.getMessage());
-			e.printStackTrace();
-			return;
+			throw new RuntimeException("\n Save parse table failed.");
 		}
 
 		//======================================================================
 		//=======STEP 3: LOAD THE INPUT DATA====================================
 		//======================================================================
+		
 		try
 		{
 			String line;
@@ -159,13 +158,13 @@ public class ParserDriver
 			line = br.readLine();
 			line = removeMultipleSpaces(line);
 			
+			if(line.contains("$"))
+				throw new RuntimeException("\n The symbol $ found in the scanner output. $ is a reserved symbol.");							
 			if( br.readLine() != null ) // File should only be one line long
-				//TODO: Specify exception 
-				;
+				throw new RuntimeException("\n Scanner file greater than one line long.");
 			
 			// end file read
 			dstream.close();
-			
 			
 			lineTokens = line.split(" ");			
 			for(String token : lineTokens)
@@ -176,31 +175,19 @@ public class ParserDriver
 			input.addLast("$");
 
 		}
-		catch(Exception e)
+		catch(IOException e)
 		{
-			//TODO: Specify exception handling
-			System.err.println("Error: "+e.getMessage());
-			e.printStackTrace();
-			return;
+			throw new RuntimeException("\n Scanner file read failed.");
 		}
 		
 
 		//======================================================================
-		//=======STEP 3: LOAD THE INPUT DATA====================================
+		//=======STEP 4: Parse the input========================================
 		//======================================================================
 		
-		try
-		{
-			Parser.parse(input, parserGenerator.getParseTable());			
-		}
-		catch(Exception e)
-		{
-			//TODO: Specify exception handling
-			System.err.println("Error: "+e.getMessage());
-			e.printStackTrace();
-			return;
-		}
-		System.out.println("Complete");
+		Parser.parse(input, parserGenerator.getParseTable());			
+		System.out.println("Parse completed successfully! No errors detected.");
+		
 	}
 	
 	/**

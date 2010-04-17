@@ -20,8 +20,6 @@ public class ParserGenerator
 	
 	private LinkedList<NonterminalRule> nonterminalRules;
 	private LinkedList<TerminalRule> terminalRules;
-
-	private NonterminalRule startingRule;
 	
 	private ParseTable parseTable;
 	
@@ -33,17 +31,12 @@ public class ParserGenerator
 	 */
 	public ParserGenerator(String[] terminals, String[] nonterminals, String start)
 	{
-		// Create variables
+		// create variables
 		this.nonterminalRuleHT = new Hashtable<String, NonterminalRule>();
 		this.terminalRuleHT = new Hashtable<String, TerminalRule>();
 		this.nonterminalRules = new LinkedList<NonterminalRule>();
 		this.terminalRules = new LinkedList<TerminalRule>();
-		this.parseTable = new ParseTable();
 		
-		// set up terminal dollar rule and add it to the hash table
-		TerminalRule dollar = new TerminalRule("$");
-		this.terminalRuleHT.put("$", dollar);
-
 		// add terminals to hash table
 		for(String terminal : terminals)
 		{
@@ -59,20 +52,29 @@ public class ParserGenerator
 			this.nonterminalRuleHT.put(nonterminal, new NonterminalRule(nonterminal));
 		}
 		
+		// set up terminal dollar rule and add it to the hash table
+		TerminalRule dollarRule = new TerminalRule("$");
+		this.terminalRuleHT.put("$", dollarRule);
+		
 		// set up starting rule
-		this.startingRule = this.nonterminalRuleHT.get(start);
-		this.startingRule.getFollow().add(dollar);
+		NonterminalRule startingRule = this.nonterminalRuleHT.get(start);
+		startingRule.getFollow().add(dollarRule);	
+		
+		// create parse table
+		this.parseTable = new ParseTable(startingRule, dollarRule);
 	}
 	
 	public void addGrammarRule(String symbol, String[] productionRuleStrings)
 	{
 		if( !this.nonterminalRuleHT.containsKey(symbol) ) // the symbol doesn't have a grammar rule yet 
 		{
-			//TODO: Throw Error
+			throw new RuntimeException("\n Error Parsing Rules. \n" +
+					"Symbol " + symbol + " is not in the grammar.");
 		}
 		else if(symbol.equals("$"))
 		{
-			//TODO: Throw Error
+			throw new RuntimeException("\n Error Parsing Rules. \n" +
+					"Symbol $ is a reserved symbol.");
 		}
 		
 		// generate a production rule for the new symbol
@@ -84,9 +86,8 @@ public class ParserGenerator
 			else if(this.terminalRuleHT.containsKey(productionRuleString))
 				productionRule.add(this.terminalRuleHT.get(productionRuleString));				
 			else
-			{
-				//TODO: Throw Error
-			}
+				throw new RuntimeException("\n Error Parsing Rules. \n" 
+						+ "Symbol " + productionRuleString + " is not in the grammar.");
 		}
 		// add the production rule to the symbol's grammar rule
 		this.nonterminalRuleHT.get(symbol).addProductionRule(productionRule);
@@ -109,7 +110,7 @@ public class ParserGenerator
 	{
 		for( int i = 0 ; i < this.nonterminalRules.size() ; i++ )
 		{
-			System.out.println(this.nonterminalRules.get(i).toString());
+			System.out.println(this.nonterminalRules.get(i).detailedToString());
 		}
 	}
 	
@@ -152,11 +153,8 @@ public class ParserGenerator
 	 */
 	public void stepIIa()
 	{
-		System.out.println("IIa1");
 		this.convertHashTablesToLists();
-		System.out.println("IIa2");
 		this.removeSelfLeftRecursion();
-		System.out.println("IIa3");
 		this.removeCommonPrefixes();
 	}
 	
@@ -203,11 +201,8 @@ public class ParserGenerator
 	 */
 	public void stepIIb()
 	{
-		System.out.println("IIb1");
 		this.constructFirst();
-		System.out.println("IIb2");
 		this.constructFollow();
-		System.out.println("IIb3");
 		this.createParseTable();
 	}
 	
@@ -223,7 +218,6 @@ public class ParserGenerator
 				wasChanged = nonterminal.constructFirst(wasChanged);
 			}
 		}
-		this.printFirst();
 	}
 	
 	public void constructFollow()
@@ -242,7 +236,6 @@ public class ParserGenerator
 	public void createParseTable()
 	{		
 		this.terminalRules.remove(EpsilonRule.getEpsilonRule());
-		this.parseTable = new ParseTable();
 		for(NonterminalRule nonterminal : this.nonterminalRules)
 		{
 			for(TerminalRule terminal : this.terminalRules)

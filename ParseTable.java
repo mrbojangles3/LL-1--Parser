@@ -18,10 +18,17 @@ public class ParseTable
 	 * and the terminal symbol string.
 	 */
 	private Hashtable<String,LinkedList<GrammarRule>> entries;
+	/**
+	 * The starting rule of the grammar
+	 */
+	private NonterminalRule start;
+	private TerminalRule dollar;
 	
-	public ParseTable()
+	public ParseTable(NonterminalRule start, TerminalRule dollar)
 	{
 		entries = new Hashtable<String,LinkedList<GrammarRule>>();
+		this.start = start;
+		this.dollar = dollar;
 	}
 	
 	/**
@@ -39,13 +46,24 @@ public class ParseTable
 	
 	/**
 	 * Gets the production rule list at the slot corresponding to the keys.
-	 * @param nonterminalKey - nonterminal list.
-	 * @param terminalKey - terminal list.
+	 * @param nonterminalKey - nonterminal rule.
+	 * @param terminalKey - terminal rule.
 	 * @return production rule list.
 	 */
 	public LinkedList<GrammarRule> get(NonterminalRule nonterminalKey, TerminalRule terminalKey)
 	{
 		return this.entries.get(nonterminalKey.getSymbol()+terminalKey.getSymbol());
+	}
+	
+	/**
+	 * Gets the production rule list at the slot corresponding to the keys.
+	 * @param nonterminalKey - nonterminal rule.
+	 * @param terminalKey - terminal string.
+	 * @return production rule list.
+	 */
+	public LinkedList<GrammarRule> get(NonterminalRule nonterminalKey, String terminalString)
+	{
+		return this.entries.get(nonterminalKey.getSymbol()+terminalString);
 	}
 	
 	/**
@@ -57,5 +75,25 @@ public class ParseTable
 	public LinkedList<GrammarRule> remove(NonterminalRule nonterminalKey, TerminalRule terminalKey)
 	{
 		return this.entries.remove(nonterminalKey.getSymbol()+terminalKey.getSymbol());
+	}
+
+	//====== Getters & Setters ======
+	
+	public NonterminalRule getStart() 
+	{
+		return start;
+	}
+
+	public void setStart(NonterminalRule start) 
+	{
+		this.start = start;
+	}
+
+	public TerminalRule getDollar() {
+		return dollar;
+	}
+
+	public void setDollar(TerminalRule dollar) {
+		this.dollar = dollar;
 	}
 }

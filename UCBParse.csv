@@ -1,0 +1,6 @@
+,RIGHTPAR,INTNUM,PLUS,$,MULTIPLY,LEFTPAR
+<E>,,[<T>  <E'>],,,,[<T>  <E'>]
+<F>,,[INTNUM],,,,[LEFTPAR  <E>  RIGHTPAR]
+<T>,,[<F>  <T'>],,,,[<F>  <T'>]
+<E'>,[EPSILON],,[PLUS  <T>  <E'>],[EPSILON],,
+<T'>,[EPSILON],,[EPSILON],[EPSILON],[MULTIPLY  <F>  <T'>],

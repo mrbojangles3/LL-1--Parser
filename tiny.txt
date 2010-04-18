@@ -1,46 +1,19 @@
-/* Tiny Grammar */
-/* Re-written to take order of precedence into account */
-/* CS3240 -- James McCarty, Rob Rayborn, Logan Blyth */
-
-/* Starting Grammar */
-<Tiny-program> : begin <statement-list> end
+%Tokens BEGIN END SEMICOLON COMMA INTNUM PLUS MINUS MULTIPLY MODULO ID PRINT READ ASSIGN LEFTPAR RIGHTPAR 
+%Non-terminals <Tiny-program> <statement-list> <statement> <id-list> <exp-list> <exp> <op> <mult-op> <add-op> <mod-op> <term>
+%Start <Tiny-program>
+%Rules
+<Tiny-program> : BEGIN <statement-list> END
 <statement-list> : <statement-list> <statement> | <statement>
-<statement> : print ( <exp-list> );
-<statement> : ID := <exp>;
-<statement> : read ( <id-list> );
-<id-list> : <id-list>, ID | ID
-<exp-list> : <exp-list>, <exp> | <exp>
-<exp> : ID | INTNUM | ( <exp> )
-<exp> : <exp> <bin-op> <exp>
-<bin-op> : +|-|*|%
-
-/* Remove left recursion */
-<statement-list>  : <statement> <statement-list>'
-<statement-list>' : <statement> <statement-list>' | epsilon
-
-<id-list>  : ID <id-list>'
-<id-list>' : , ID | epsilon
-
-<exp-list>  : <exp> <exp-list>'
-<exp-list>' : , <exp> | epsilon
-
-<exp>  : <bin-op> <exp>'
-<exp>' : <bin-op> <exp> | epsilon
-
-/* After left recursion removal */
-<Tiny-program> : begin <statement-list> end
-<statement-list>  : <statement> <statement-list>'
-<statement-list>' : <statement> <statement-list>' | epsilon
-<statement> : print ( <exp-list> );
-<statement> : ID := <exp>;
-<statement> : read ( <id-list> );
-<id-list>  : ID <id-list>'
-<id-list>' : , ID | epsilon
-<exp-list>  : <exp> <exp-list>'
-<exp-list>' : , <exp> | epsilon
-<exp> : ID | INTNUM | ( <exp> )
-<exp>  : <bin-op> <exp>'
-<exp>' : <bin-op> <exp> | epsilon
-<bin-op> : +|-|*|%
-
-
+<statement> : PRINT LEFTPAR <exp-list> RIGHTPAR SEMICOLON
+<statement> : ID ASSIGN <exp> SEMICOLON
+<statement> : READ LEFTPAR <id-list> RIGHTPAR SEMICOLON
+<id-list> : <id-list> COMMA ID | ID
+<exp-list> : <exp-list> COMMA <exp> | <exp>
+<exp> : <exp> <mod-op> <term>
+<exp> : <exp> <mult-op> <term>
+<exp> : <exp> <add-op> <term>
+<exp> : <term>
+<term> : LEFTPAR <exp> RIGHTPAR | ID | INTNUM
+<mult-op> : MULTIPLY
+<add-op> : MINUS | PLUS
+<mod-op> : MODULO

@@ -32,3 +32,14 @@ The project runs in two parts:
 			be printed to the console.
 		- If there is an error in parsing, the parse stack will be dumped to
 			the console.
+
+To compile files with out run.sh:
+	Type 'make all'
+
+To run the scanner and generate tokens on an input file without run.sh:
+	Run ./scanner tiny_file.t
+
+	Output of the scanner goes to stdout.
+
+To run the Parser/Generator without running run.sh:
+	Run java tiny_token_file.tok grammar_file.g <parsing_table_output_filename.csv> 

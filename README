@@ -34,6 +34,8 @@ The project runs in two parts:
 			location in the input file, and the parse stack will be dumped to
 			the console.
 
+NOTE: The symbol we used for epsilon is the string "EPSILON"
+
 
 To compile files with out run.sh:
 	Type 'make all'

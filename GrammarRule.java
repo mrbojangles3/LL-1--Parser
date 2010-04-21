@@ -1,4 +1,3 @@
-
 import java.util.LinkedList;
 
 /**
@@ -53,7 +52,7 @@ public abstract class GrammarRule
 	 */
 	public boolean equals(GrammarRule other)
 	{
-		return (other.getSymbol() == this.getSymbol());
+		return ( other.getSymbol().equals(this.getSymbol()) );
 	}
 	
 	@Override

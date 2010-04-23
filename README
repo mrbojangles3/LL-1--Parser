@@ -12,8 +12,8 @@ This program requries two inputs:
 
 To run the project:
 	./run.sh tiny_file.t input_grammar.g <parsing_table_output_filename.csv>
-
-	An output file name is optional.
+		parsing_table_output_filename is an optional parameter for parse table output, 
+		  if not provided the parse table is saved to parseTable.csv
 
 The project runs in two parts:
 	1.  The scanner tokenizes the input source file into symbols.
@@ -46,8 +46,12 @@ To run the scanner and generate tokens on an input file without run.sh:
 	Output of the scanner goes to stdout.
 
 To run the Parser/Generator without running run.sh:
-	Run java ParserDriver tiny_token_file.tok grammar_file.g <parsing_table_output_filename.csv> 
+	Run java ParserDriver tiny_token_file.tok grammar_file.g parsing_table_output_filename.csv <-v>
+		-v is an optional flag to use verbose mode which prints helpful data (grammar, first set, follow set, etc.)
+		   to the terminal.
 
 To simply build a parse table without running run.sh:
 	Run java ParserDriver grammar_file.g <parsing_table_output_filename.csv>
+		parsing_table_output_filename is an optional parameter for parse table output, 
+		  if not provided the parse table is saved to parseTable.csv
 

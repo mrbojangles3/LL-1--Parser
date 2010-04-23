@@ -10,16 +10,22 @@ import java.util.LinkedList;
 
 public class ParserDriver
 {
+	private static boolean verbose;
+	
 	/**
-	 * If there are zero or three input arguments then we are running a full parse table build and file parse
+	 * If there are zero, three, or four input arguments then we are running a full parse table build and file parse
 	 * 		If there are zero inputs then 
 	 * 			we use the default scanner file "scan.txt"
 	 * 			we use the default grammar file "grammar.txt"
 	 * 			we use save the parse table to the default "parseTable.csv"
-	 * 		Else there are zero inputs then 
+	 * 		Else are three or four inputs then 
 	 * 			the first argument is the scanner file location
 	 * 			the second argument is the grammar file location
 	 * 			the third argument is the file location to save the parse table at (make sure to end in .csv if you want to read it in a spreadsheet editor)
+	 * 			If there are three inputs then
+	 * 				Verbose mode is off
+	 * 			Elseif the fourth input is -v then
+	 * 				Verbose mode is on (verbose mode is off with any other input)
 	 * Elseif there are one or two input arguments then we are just building the parse table
 	 * 		If there are one inputs then
 	 * 			the input is the grammar file location
@@ -44,13 +50,23 @@ public class ParserDriver
 			scannerFile = "scan.txt";
 			grammarFile = "grammar.txt";
 			parseTableFile = "parseTable.csv";
+			verbose = false;
 		}
-		else if(args.length == 3)	// all parameters given
+		else if(args.length == 3)	// all parameters given except for verbose
 		{
 			// Assign any input parameter
 			scannerFile = args[0];
 			grammarFile = args[1];
 			parseTableFile = args[2];
+			verbose = false;
+		}
+		else if( (args.length == 4) && (args[3].equalsIgnoreCase("-v")) )	// all parameters given, verbose on
+		{
+			// Assign any input parameter
+			scannerFile = args[0];
+			grammarFile = args[1];
+			parseTableFile = args[2];
+			verbose = true;
 		}
 		else if(args.length == 2)	// parse table only
 		{
@@ -58,6 +74,7 @@ public class ParserDriver
 			grammarFile = args[0];
 			parseTableFile = args[1];
 			scannerFile = null;
+			verbose = false;
 		}
 		else if(args.length == 1)	// parse table only
 		{
@@ -65,6 +82,7 @@ public class ParserDriver
 			grammarFile = args[0];
 			parseTableFile = "parseTable.csv";
 			scannerFile = null;
+			verbose = false;
 		}
 		else
 		{
@@ -137,9 +155,7 @@ public class ParserDriver
 				rule = splitString[0].trim(); 					// "RULE " -> "RULE"
 				productionRules = splitString[1].split("\\|");	// " A B | C D " -> {" A B " , " C D "} 
 				for(String productionRule : productionRules)
-				{
 					parserGenerator.addGrammarRule(rule, productionRule.trim().split(" "));
-				}	
 			}
 			
 			dstream.close();
@@ -246,5 +262,11 @@ public class ParserDriver
 		}while( !string.equals(oldString) );
 		
 		return string;
+	}
+	
+	
+	public static boolean verboseOn()
+	{
+		return verbose;
 	}
 }

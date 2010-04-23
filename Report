@@ -1,0 +1,163 @@
+
+Step I: Scanner
+
+Step II: Parser Generator
+	First let me go into the assumptions we made for the parser generator:
+		* EPSILON is what we used for the epsilon symbol.
+		* $ is a reserved symbol and cannot be in the input grammar or an error will be thrown.
+		* Input is case sensitive i.e. different case = different symbol
+		* Nonterminal rules do NOT have to have <> around them; they only have to be declared in the nonterminal section.
+		* Nonterminals cannot contain a space inside <> i.e. you can't have <EXP LIST> as a nonterminal
+
+	The example we will use for the explanations is a simple grammar describing a list separated by semicolons:
+		<EXP> : ( <INNERLIST> ) | ( )
+		<INNERLIST> : <INNERLIST> ; INT | INT
+	If you want to check each of these steps for some other langauge, you can run the parser generator in verbose mode (see README).
+
+
+	Step II(a): Removal of Left Recursion and Common Prefixes
+		For this step we transfered the pseudocode from the book to a more object oriented syntax.  The parser
+		generator (ParserGenerator.java) has functions removeSelfLeftRecursion and removeCommonPrefixes which 
+		iterates over each nonterminal grammar rule (NonterminalRule.java) and calls their encapsulated functions
+		of the same name (removeSelfLeftRecursion and removeCommonPrefixes).  Within each nonterminal rule 
+		rucursion removal and common prefix removal is executed and the functions return a new rule if one was
+		created (ie if run on A we return A').  The parser then adds the new rule-prime to the nonterminal 
+		rule list and continues.
+
+
+		Let us consider what would happen if we ran parserGenerator.removeSelfRecursion() on our example grammer.
+			parserGenerator would iterate through each nonterminal grammar rule, nonterm, calling nonterm.removeSelfRecursion().
+				parserGenerator would first call removeSelfRecursion on <EXP>.  
+						Since there is no self-left-recursion in <EXP> 
+						it would return null because we don't need <EXP'>.
+				parserGenerator would then call removeSelfRecursion on <INNERLIST>.  
+						This would adjust <INNERLIST>'s rule to be   INT <INNERLIST'>
+						and would return   <INNERLIST'>: ; INT <INNERLIST'> | EPSILON 
+						which would be added to our rules by parserGenerator.
+				parserGenerator would first call removeSelfRecursion on <INNERLIST'>.  
+						Since there is no self-left-recursion in <INNERLIST'> 
+						it would return null because we don't need <INNERLIST''>.
+		Our new grammar rules are:
+			<EXP>:  ( <INNERLIST> ) | ( )
+			<INNERLIST>:  INT <INNERLIST'>
+			<INNERLIST'>:  ; INT <INNERLIST'> | EPSILON				
+
+
+		Let us consider what would happen if we ran parserGenerator.removeCommonPrefixes() on our example grammer:
+			parserGenerator would iterate through each nonterminal grammar rule, nonterm, calling nonterm.removeCommonPrefixes().
+				parserGenerator would first call removeCommonPrefixes on <EXP>. 
+						This would adjust <EXP>'s rule to be    ( <EXP'>    
+						and would return   <EXP'>:  <INNERLIST> ) | )
+						which would be added to our rules by parserGenerator.
+				parserGenerator would then call removeCommonPrefixes on <EXP'>.  
+						Since there are no common prefixes in <EXP'> 
+						it would return null because we don't need <EXP''>.
+				parserGenerator would then call removeCommonPrefixes on <INNERLIST>.
+						Since there are no common prefixes in <INNERLIST> 
+						it would return null because we don't need <INNERLIST'>.
+				parserGenerator would first call removeCommonPrefixes on <INNERLIST'>.
+						Since there are no common prefixes in <INNERLIST'> 
+						it would return null because we don't need <INNERLIST''>.
+		Our new grammar rules are:
+			<EXP>:  ( <EXP'>
+			<EXP'>:  <INNERLIST> ) | )
+			<INNERLIST>:  INT <INNERLIST'>
+			<INNERLIST'>:  ; INT <INNERLIST'> | EPSILON
+		Note the lack of self-left-recursion and common prefixes.
+
+
+	StepII(b): Building First Set, Follow Set, and Parse Table
+		Like the previous step, we simply implemented the pseudocode from the book in a more OO way.  
+
+		We calculate the first and follow set using the parser generator's constructFirst and constructFollow 
+		functions.  These function iterate over each nonterminal grammar rule and calls their encapsulated 
+		functions of the same name (constructFirst and constructFollow).  Within the nonterminal rule the 
+		algorithm in the Louden Textbook is executed and a boolean representing whether the individual 
+		nonterminal rules' first or follow set was updated is returned.  The parser continues to iterate through the 
+		nonterminals until no changes to their first/follow sets occur.
+
+
+		Let us consider what happens if we run parserGenerator.constructFirst() on our example grammar:
+			parserGenerator loop through each of the nonterminal rules calling their encapsulated
+			constructFirst method until none of them report a change in their first sets.
+				(I will spare the grammar rule level detail since this can iterate for quite a while)
+		Our new first set is formed correctly:
+			First set for <EXP> -> ( <EXP'>:			( 
+			First set for <EXP'> -> <INNERLIST> ):			INT
+			First set for <EXP'> -> ):				)
+			First set for <INNERLIST> -> INT <INNERLIST'>:		INT
+			First set for <INNERLIST'> -> ; INT <INNERLIST'>:	;
+			First set for <INNERLIST'> -> EPSILON:			EPSILON
+
+
+		Let us consider what happens if we run parserGenerator.constructFollow() on our example grammar:
+			parserGenerator loop through each of the nonterminal rules calling their encapsulated
+			constructFollow method until none of them report a change in their follow sets.
+				(I will spare the grammar rule level detail since this can iterate for quite a while)
+		Our new follow set is formed correctly:
+			Follow set for <EXP>:		$
+			Follow set for <EXP'>:		$
+			Follow set for <INNERLIST>:	)
+			Follow set for <INNERLIST'>:	)
+
+
+		Forming the parse table is quite simple after we have the first and follow sets.  We form the parse 
+		table by calling the parser generator's createParseTable function.  It simply loops through all the 
+		nonterminals and loops through each of the terminals.  If the nonterminal contains the terminal in 
+		its first set then the correlating production rule is added to the parse table.  If the nonterminal's 
+		first set contains epsilon then epsilon is added to the parse table for all of the follow terminal entries.
+
+		Here's what the parse table looks like before we consider EPSILON:
+				|	(	|	)	|	INT		|	    ;		|	$	|
+		<EXP>		|   ( <EXP'>	|		|			|			|		|
+		<EXP'>		|		|	)	|    <INNERLIST> )	|			|		|
+		<INNERLIST>	|		|		|   INT <INNERLIST'>	|			|		|
+		<INNERLIST'>	|		|		|			|   ; INT <INNERLIST'>	|		|
+
+		Now when we consider the first set of <INNERLIST'> contains EPSILON, the resulting parse table looks like this:
+				|	(	|	)	|	INT		|	    ;		|	$	|
+		<EXP>		|   ( <EXP'>	|		|			|			|		|
+		<EXP'>		|		|	)	|    <INNERLIST> )	|			|		|
+		<INNERLIST>	|		|		|   INT <INNERLIST'>	|			|		|
+		<INNERLIST'>	|		|    EPSILON	|			|   ; INT <INNERLIST'>	|		|
+
+
+	Step II(c)
+		Once we have the parse table parsing is quite simple.  The parser (Parser.java) starts out with 
+		an input list, a parse stack that contains only the start symbol, and the parse table.  The parser 
+		loops until the stack and input is empty or an error has occured doing the following:
+			if the top of the stack is a nonterminal 
+				then we add the parse table entry for that nonterminal and the current input symbol to the stack. (generate)
+			if the top of the stack is a terminal 
+				then we make sure that it matches the current input symbol 
+				and we pop off the top of the stack and get the next input symbol. (match)
+			if any entry in the parse table is empty or the input symbol and stack don't match 
+				then we throw an error.
+
+		For example for the input ( INT ; INT )
+		   INPUT		    STACK		ACTION
+		( INT ; INT ) $		<EXP> $			generate
+		( INT ; INT ) $		( <EXP'> $		match
+		INT ; INT ) $		<EXP'> $		generate
+		INT ; INT ) $		<INNERLIST> ) $		generate
+		INT ; INT ) $		INT <INNERLIST'> ) $	match
+		; INT ) $		<INNERLIST'> ) $	generate
+		; INT ) $		; INT <INNERLIST'> ) $	match
+		) $			<INNERLIST'> ) $	match
+		) $			<INNERLIST'> ) $	generate
+		) $			EPSILON ) $		match (our implementation can put epsilon on the stack, but pops it off when detected)
+		) $			) $			match
+		$			$			match
+								match
+		SUCCESSFUL PARSE
+		
+
+
+
+
+
+
+
+
+
+

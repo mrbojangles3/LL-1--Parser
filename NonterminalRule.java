@@ -1,5 +1,3 @@
-
-
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -128,8 +126,7 @@ public class NonterminalRule extends GrammarRule
  		
  		for(ProductionRule productionRule : this.productionRules)
  		{
- 	 		System.out.println("First set for "+this.getSymbol()+" -> "+productionRule.toString()+":");
-	 		System.out.print("    ");
+ 	 		System.out.print("First set for "+this.getSymbol()+" -> "+productionRule.toString()+":  ");
 	 		for(TerminalRule first : productionRule.getFirstList())
 	 		{
 	 	 		System.out.print(first.getSymbol()+", ");
@@ -140,7 +137,7 @@ public class NonterminalRule extends GrammarRule
  	
  	public void printFollow()
  	{
- 		System.out.print("Follow set for "+this.getSymbol()+": ");
+ 		System.out.print("Follow set for "+this.getSymbol()+":  ");
  		
  		for(TerminalRule element : this.follow)
  		{
@@ -311,9 +308,9 @@ public class NonterminalRule extends GrammarRule
  			String ret = "";
  			for(GrammarRule currentRule : this.rule)
  			{
- 				ret += currentRule.getSymbol()+", ";
+ 				ret += currentRule.getSymbol()+" ";
  			}
- 			return ret.substring(0, ret.length()-2);
+ 			return ret.substring(0, ret.length()-1);
  		}
  		
  		//=========FIRST STUFF==============
@@ -595,9 +592,10 @@ public class NonterminalRule extends GrammarRule
 					break;
 				}
 			}
-			if(containsEpsilon) // all grammar rules in the current production rules contained EPSILON in their first set
+			if(containsEpsilon && (!productionRule.getFirstList().contains(EpsilonRule.getEpsilonRule()))) // all grammar rules in the current production rules contained EPSILON in their first set
 			{
 				productionRule.firstListAdd(EpsilonRule.getEpsilonRule());
+				//wasChanged = true;
 			}
 		}
 		return wasChanged;

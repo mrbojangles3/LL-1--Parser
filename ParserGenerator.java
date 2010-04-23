@@ -1,5 +1,3 @@
-
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -112,6 +110,7 @@ public class ParserGenerator
 		{
 			System.out.println(this.nonterminalRules.get(i).detailedToString());
 		}
+		System.out.println();
 	}
 	
 	public void printFirst()
@@ -119,7 +118,8 @@ public class ParserGenerator
 		for(NonterminalRule nonterminal : this.nonterminalRules)
 		{
 			nonterminal.printFirst();
-		}		
+		}	
+		System.out.println();	
 	}
 	
 	public void printFollow()
@@ -127,7 +127,8 @@ public class ParserGenerator
 		for(NonterminalRule nonterminal : this.nonterminalRules)
 		{
 			nonterminal.printFollow();
-		}		
+		}
+		System.out.println();		
 	}
 	
 	public void printParseTable()
@@ -142,6 +143,7 @@ public class ParserGenerator
 			}
 			System.out.println();
 		}
+		System.out.println();
 	}
 	
 	//================================================================
@@ -154,8 +156,25 @@ public class ParserGenerator
 	public void stepIIa()
 	{
 		this.convertHashTablesToLists();
+			if(ParserDriver.verboseOn())
+			{
+				System.out.println("Current Grammar Rules:");
+				this.printHash();
+			}
+		
 		this.removeSelfLeftRecursion();
+			if(ParserDriver.verboseOn())
+			{
+				System.out.println("Recursion Removed; New Grammar Rules:");
+				this.printHash();
+			}
+			
 		this.removeCommonPrefixes();
+			if(ParserDriver.verboseOn())
+			{
+				System.out.println("Common Prefixes Removed; New Grammar Rules:");
+				this.printHash();
+			}
 	}
 	
 	public void convertHashTablesToLists()
@@ -202,7 +221,19 @@ public class ParserGenerator
 	public void stepIIb()
 	{
 		this.constructFirst();
+			if(ParserDriver.verboseOn())
+			{
+				System.out.println("Constructed First Set:");
+				this.printFirst();
+			}
+		
 		this.constructFollow();
+			if(ParserDriver.verboseOn())
+			{
+				System.out.println("Constructed Follow Set:");
+				this.printFollow();
+			}
+			
 		this.createParseTable();
 	}
 	

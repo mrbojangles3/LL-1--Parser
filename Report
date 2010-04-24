@@ -1,6 +1,10 @@
 
 Step I: Scanner
 
+The scanner opens a file written with valid symbols in the tiny grammar, and writes a file containing a space separated tokenized version of the input to stdout.
+
+The scanner implements a DFA, similar to the one found in the Louden text, that has been adjusted to follow the grammar rules specified in the assignment.  Internally, the program scans a line of text a character at a time.  The staring character specifies the type of token that will be returned, either control, identification, or number. It continues adding characters to a buffer until the max token length has been reached, which is an error, or a character of a different type is found.  This buffer is matched to known tokens, control symbols, and the ID and INTEGER type.  The correct token is then written to stdout.  This process continues until the end of the input file is reached, or an error state is encountered. 
+
 Step II: Parser Generator
 	First let me go into the assumptions we made for the parser generator:
 		* EPSILON is what we used for the epsilon symbol.
